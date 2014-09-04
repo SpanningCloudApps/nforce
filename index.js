@@ -90,6 +90,11 @@ var Connection = function(opts) {
   } else {
     this.mode = 'multi';
   }
+  if(opts.timeout && typeof opts.timeout !== 'number') {
+    throw new Error('timeout must be a number: ' + opts.timeout);
+  } else {
+    this.timeout = parseInt(opts.timeout, 10);
+  }
 }
 
 // oauth methods
@@ -134,14 +139,14 @@ Connection.prototype.authenticate = function(opts, callback) {
   var uri, reqOpts, bodyOpts;
   var self = this;
 
-  if(!callback) callback = function(){}
+  if(!callback) callback = function(){};
 
   if(!opts) opts = {};
 
   bodyOpts = {
     'client_id': self.clientId,
-    'client_secret': self.clientSecret,
-  }
+    'client_secret': self.clientSecret
+  };
 
   if(opts.code) {
     bodyOpts['grant_type'] = 'authorization_code';
@@ -1035,6 +1040,10 @@ var errors = {
 Connection.prototype._apiAuthRequest = function(opts, callback) {
 
   var self = this;
+  
+  if (this.timeout) {
+    opts.timeout = this.timeout;
+  }
 
   return request(opts, function(err, res, body){
     // request returned an error
@@ -1073,6 +1082,10 @@ Connection.prototype._apiBlobRequest = function(opts, oauth, callback) {
   opts.headers = {
     'content-type': 'application/json',
     'Authorization': 'Bearer ' + oauth.access_token
+  }
+  
+  if (this.timeout) {
+    opts.timeout = this.timeout;
   }
 
   return request(opts, function(err, res, body) {
@@ -1125,6 +1138,10 @@ Connection.prototype._apiRequest = function(opts, oauth, sobject, callback) {
     opts.headers['content-type'] = 'multipart/form-data';
   } else {
     opts.headers['content-type'] = 'application/json';
+  }
+  
+  if (this.timeout) {
+    opts.timeout = this.timeout;
   }
   
   return request(opts, function(err, res, body) {
