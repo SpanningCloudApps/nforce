@@ -106,7 +106,30 @@ describe('index', function(){
           });
         }).should.throw();
       });
-  
+
+    it('should throw on invalid timeout', function(){
+      (function() {
+        var org = nforce.createConnection({
+          clientId: 'ADFJSD234ADF765SFG55FD54S',
+          clientSecret: 'ADFJSD234ADF765SFG55FD54S',
+          redirectUri: 'http://localhost:3000/oauth/_callback',
+          timeout: '5555'
+        });
+      }).should.throw('timeout must be a number: 5555');
+    });
+
+    it('should accept a number for timeout', function(){
+      (function() {
+        var org = nforce.createConnection({
+          clientId: 'ADFJSD234ADF765SFG55FD54S',
+          clientSecret: 'ADFJSD234ADF765SFG55FD54S',
+          redirectUri: 'http://localhost:3000/oauth/_callback',
+          timeout: 5555
+        });
+        
+        org.timeout.should.equal(5555);
+      }).should.not.throw();
+    });
   });
   
   describe('#createSObject', function(){
